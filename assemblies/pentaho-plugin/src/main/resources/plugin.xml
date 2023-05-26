@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin title="App Shell Home" name="app-shell-home">
+  <overlays>
+    <overlay id="launch" resourcebundle="content/app-shell-home/resources/messages" priority="1">
+      <button id="classicPluginButton" label="${openClassicPlugin}"
+              command="window.parent.parent.mantle_openTab('${tabName}', '${tabName}', 'content/app-shell-home/webclient/index.html')"/>
+    </overlay>
+  </overlays>
+  <perspective id="classicPlugin.perspective" title="${titleClassicPlugin}" layout-priority="10"
+               resourcebundle="content/app-shell-home/resources/messages"
+               content-url="content/app-shell-home/webclient/index.html"/>
+  <external-resources/>
+  <static-paths>
+    <static-path url="/app-shell-home/resources" localFolder="resources"/>
+    <static-path url="/app-shell-home/webclient" localFolder="webclient"/>
+  </static-paths>
+  <content-types/>
+</plugin>

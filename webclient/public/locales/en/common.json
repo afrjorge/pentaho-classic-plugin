@@ -1,0 +1,12 @@
+{
+  "empty": "Empty table",
+  "type": {
+    "xaction": "XAction Report",
+    "xanalyzer": "Analysis Report",
+    "xcdf": "CDF Dashboard",
+    "wcdf": "CDE Dashboard",
+    "xdash": "Pentaho Dashboard",
+    "prpt": "Pentaho Report",
+    "prpti": "Pentaho Interactive Report"
+  }
+}

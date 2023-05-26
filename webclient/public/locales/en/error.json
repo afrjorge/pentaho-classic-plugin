@@ -1,0 +1,7 @@
+{
+  "notFound": {
+    "title": "Not Found",
+    "message": "Page not found",
+    "action": "Go back"
+  }
+}

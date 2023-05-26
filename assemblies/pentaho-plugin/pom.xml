@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.pentaho</groupId>
+    <artifactId>app-shell-home-assemblies</artifactId>
+    <version>10.2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>app-shell-home-assembly</artifactId>
+  <packaging>pom</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.pentaho</groupId>
+      <artifactId>app-shell-home-webclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>unzip-assembly-to-local-biserver</id>
+      <activation>
+        <property>
+          <name>biserverHome</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>${maven-antrun-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>unzipIt</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <echo message="Removing existing plugin from ${biserverHome}/pentaho-solutions/system"/>
+                    <delete includeemptydirs="true" dir="${biserverHome}/pentaho-solutions/system/classicPlugin"/>
+                    <echo message="Unzipping plugin in ${biserverHome}/pentaho-solutions/system"/>
+                    <unzip src="${project.build.directory}/app-shell-home-assembly-${project.version}.zip"
+                           dest="${biserverHome}/pentaho-solutions/system"/>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

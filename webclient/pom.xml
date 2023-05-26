@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.pentaho</groupId>
+    <artifactId>app-shell-home</artifactId>
+    <version>10.2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>app-shell-home-webclient</artifactId>
+
+  <name>${project.artifactId}</name>
+  <description>Pentaho Classic Plugin Webclient</description>
+
+  <properties>
+    <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+    <nodejs.version>v22.2.0</nodejs.version>
+    <npm.version>10.7.0</npm.version>
+
+    <javascript-compilation-directory>${project.basedir}/dist</javascript-compilation-directory>
+  </properties>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>${javascript-compilation-directory}</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>${frontend-maven-plugin.version}</version>
+        <configuration>
+          <nodeDownloadRoot>https://one.hitachivantara.com/artifactory/nodejs-generic-remote/</nodeDownloadRoot>
+          <npmDownloadRoot>https://one.hitachivantara.com/artifactory/npm-release/npm/-/</npmDownloadRoot>
+          <nodeVersion>${nodejs.version}</nodeVersion>
+          <npmVersion>${npm.version}</npmVersion>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>install</arguments>
+              <workingDirectory>${project.basedir}</workingDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm run build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>run build</arguments>
+              <workingDirectory>${project.basedir}</workingDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
