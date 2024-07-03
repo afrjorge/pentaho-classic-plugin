@@ -1,9 +1,12 @@
-import type { HvAppShellConfig } from "@hitachivantara/app-shell-vite-plugin";
+import type { AppShellVitePluginOptions, HvAppShellConfig } from "@hitachivantara/app-shell-vite-plugin";
 
-export default (): HvAppShellConfig => ({
+export default (
+  _opts: AppShellVitePluginOptions,
+  env: Record<string, string>
+): HvAppShellConfig => ({
   name: "App Shell Home",
 
-  baseUrl: "/pentaho/content/app-shell-home/webclient",
+  baseUrl: env.VITE_BASE_URL || "/pentaho/content/app-shell-home/webclient",
 
   mainPanel: {
     maxWidth: "xl",
