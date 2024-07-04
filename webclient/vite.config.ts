@@ -12,7 +12,7 @@ import { ApplicationBundleType, HvAppShellVitePlugin } from "@hitachivantara/app
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const appShellType = env.VITE_APP_SHELL_TYPE as ApplicationBundleType ?? "bundle";
+  const appShellType = env.VITE_APP_SHELL_TYPE as ApplicationBundleType || "bundle";
 
   return {
     plugins: [
@@ -32,7 +32,6 @@ export default defineConfig(({ mode }) => {
         type: appShellType,
         autoViewsAndRoutes: true,
         autoMenu: true,
-        // modules: ["src/header/ChangeLocaleButton/index.ts", "src/providers/Provider.tsx"],
       }, env),
     ],
 
@@ -41,7 +40,6 @@ export default defineConfig(({ mode }) => {
         '/pentaho/api': {
           target: 'http://localhost:8080',
           changeOrigin: true,
-          // rewrite: (path) => path,
         }
       }
     },

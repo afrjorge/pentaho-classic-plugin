@@ -8,7 +8,7 @@ const useI18nInstance = () => {
   const [i18nInstance, setI18nInstance] = React.useState<i18n>();
 
   const initI18n = React.useCallback(async () => {
-    const baseUrl = import.meta.resolve?.("@hv-apps/app-shell-home/");
+    const baseUrl = import.meta.resolve?.("@pentaho-plugin/app-shell-home/webclient/");
     const instance = createInstance();
     instance
       // load translation using xhr -> see /public/locales

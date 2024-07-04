@@ -1,5 +1,5 @@
 {
-  "name": "@hv-apps/app-shell-home",
+  "name": "@pentaho-plugin/app-shell-home",
   "private": true,
   "type": "module",
   "scripts": {

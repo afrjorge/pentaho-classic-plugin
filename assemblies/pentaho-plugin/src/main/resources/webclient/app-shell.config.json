@@ -1,0 +1,13 @@
+{
+  "menu": [{
+    "label": "Home",
+    "target": "/"
+  }],
+
+  "mainPanel": {
+    "views": [{
+      "bundle": "@pentaho-plugin/app-shell-home/webclient/pages/Home.js",
+      "route": "/"
+    }]
+  }
+}

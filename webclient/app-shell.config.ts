@@ -6,7 +6,7 @@ export default (
 ): HvAppShellConfig => ({
   name: "App Shell Home",
 
-  baseUrl: env.VITE_BASE_URL || "/pentaho/content/app-shell-home/webclient",
+  baseUrl: env.VITE_BASE_URL || "/pentaho/content/app-shell-home/webclient/",
 
   mainPanel: {
     maxWidth: "xl",
