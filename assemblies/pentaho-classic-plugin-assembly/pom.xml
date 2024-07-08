@@ -16,7 +16,7 @@
   <dependencies>
     <dependency>
       <groupId>com.pentaho</groupId>
-      <artifactId>pentaho-classic-plugin-webclient</artifactId>
+      <artifactId>pentaho-app-shell</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
@@ -44,7 +44,7 @@
                 <configuration>
                   <target>
                     <echo message="Removing existing plugin from ${biserverHome}/pentaho-solutions/system"/>
-                    <delete includeemptydirs="true" dir="${biserverHome}/pentaho-solutions/system/classicPlugin"/>
+                    <delete includeemptydirs="true" dir="${biserverHome}/pentaho-solutions/system/app-shell"/>
                     <echo message="Unzipping plugin in ${biserverHome}/pentaho-solutions/system"/>
                     <unzip src="${project.build.directory}/pentaho-classic-plugin-assembly-${project.version}.zip"
                            dest="${biserverHome}/pentaho-solutions/system"/>

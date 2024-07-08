@@ -1,29 +1,33 @@
-import type { HvAppShellConfig } from "@hitachivantara/app-shell-vite-plugin";
+import type { AppShellVitePluginOptions, HvAppShellConfig } from "@hitachivantara/app-shell-vite-plugin";
 
-export default (): HvAppShellConfig => ({
-  name: "uikit-app",
+export default (
+  _opts: AppShellVitePluginOptions,
+  env: Record<string, string>
+): HvAppShellConfig => ({
+  name: "Pentaho App Shell",
+  baseUrl: env.VITE_BASE_URL || "/pentaho/content/app-shell/webclient/",
 
-  baseUrl: "/pentaho/content/classicPlugin/webclient/",
+  apps: {
+    "@pentaho-plugin": env.VITE_PENTAHO_CONTENT || "/pentaho/api/repos/",
+  },
 
   header: {
     actions: [
-      { bundle: "@hv/help-client/button.js",
-        config: { url: "https://www.hitachivantara.com/", description: "Hitachi Vantara Help Link" }
+      {
+        bundle: "@hv/help-client/button.js",
+        config: {
+          url: "https://www.hitachivantara.com/",
+          description: "Hitachi Vantara Help Link"
+        }
+      }, {
+        bundle: "@hv/theming-client/colorModeSwitcher.js"
       },
-      { bundle: "@hv/theming-client/colorModeSwitcher.js"      },
-      { bundle: "@hv/app-switcher-client/toggle.js",
-        config: { title: "Apps",
-									apps: [
-										{ label: "App 1", description: "Application 1", url: "#", target: "NEW" },
-										{ label: "App 2", description: "Application 2", url: "#", target: "SELF", icon: { iconType: "uikit", name: "Warehouse" } }
-									]}
-      }
     ]
   },
 
   mainPanel: {
-    maxWidth: "xl",
-    views: [{bundle: "@self/pages/Welcome.js", route: "/index.html"}]
+    maxWidth: "xl"
   },
 
+  navigationMode: "ONLY_LEFT"
 });

@@ -6,7 +6,7 @@
   <formats>
     <format>zip</format>
   </formats>
-  <baseDirectory>classicPlugin</baseDirectory>
+  <baseDirectory>app-shell</baseDirectory>
 
   <dependencySets>
     <dependencySet>
