@@ -1,13 +1,20 @@
 {
+  "moduleId": "@pentaho-apps/app-shell-home/",
+  "baseUrl": "/pentaho/api/repos/app-shell-home/webclient/",
+
+  "apps": {},
+
+  "headerActions": [],
+
   "menu": [{
     "label": "Home",
     "target": "/"
   }],
 
-  "mainPanel": {
-    "views": [{
-      "bundle": "@pentaho-plugin/app-shell-home/webclient/pages/Home.js",
-      "route": "/"
-    }]
-  }
+  "providers": [],
+
+  "views": [{
+    "bundle": "@pentaho-apps/app-shell-home/pages/Home.js",
+    "route": "/"
+  }]
 }
