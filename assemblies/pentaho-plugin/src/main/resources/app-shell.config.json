@@ -1,10 +1,14 @@
 {
-  "moduleId": "@pentaho-apps/app-shell-home/",
-  "baseUrl": "/pentaho/api/repos/app-shell-home/webclient/",
+  "#comment1.1": "NO RELATIVE PATH (or least going outside plugin context), JUST FOLDER NAME",
+  "#comment1.2": "This will create a static path in Pentaho, that can be accessed with /pentaho/api/:pluginId/:baseDir/...",
+  "#comment1.3": "final key value pair - '@pentaho-apps/:pluginId/': '/pentaho/api/repos/:pluginId/:baseDir/'",
+  "#comment1.4": "@pentaho-apps is by convention, not defined anywhere",
+  "baseDir": "webclient",
 
+  "#comment2": "use only for consuming other micro-frontends (like normal apps in app-shell)",
   "apps": {},
 
-  "headerActions": [],
+  "header": { "actions": [] },
 
   "menu": [{
     "label": "Home",
@@ -13,8 +17,10 @@
 
   "providers": [],
 
-  "views": [{
-    "bundle": "@pentaho-apps/app-shell-home/pages/Home.js",
-    "route": "/"
-  }]
+  "mainPanel": {
+    "#comment3": "replace @self with '@pentaho-apps/:pluginId'",
+    "views": [
+      { "bundle": "@self/pages/Home.js",  "route": "/" }
+    ]
+  }
 }
