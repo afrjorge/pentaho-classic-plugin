@@ -21,6 +21,7 @@
   <modules>
     <module>webclient</module>
     <module>assemblies</module>
+    <module>server</module>
   </modules>
 
 </project>
