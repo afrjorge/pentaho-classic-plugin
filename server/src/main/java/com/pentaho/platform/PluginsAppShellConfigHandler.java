@@ -22,9 +22,11 @@
 
 package com.pentaho.platform;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
+import org.pentaho.platform.api.engine.IPluginLifecycleListener;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.ISystemConfig;
 import org.pentaho.platform.api.engine.PluginLifecycleException;
 import org.pentaho.platform.config.PropertiesFileConfiguration;
@@ -34,37 +36,88 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.Properties;
 
+import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager.PLUGIN_ID;
 import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager.SETTINGS_PREFIX;
 
-public class PluginsAppShellConfigHandler implements IPlatformReadyListener {
-  public static final String APP_SHELL_CONFIG_PREFIX = SETTINGS_PREFIX + "app-shell-config";
+public class PluginsAppShellConfigHandler implements IPluginLifecycleListener, IPlatformReadyListener {
+  private static final String APP_SHELL_CONFIG_PREFIX = SETTINGS_PREFIX + "app-shell-config";
+  private static final String APP_SHELL_CONFIG_FILENAME = "app-shell.config.json";
+
   private final Logger logger = LoggerFactory.getLogger( getClass() );
 
-  private IPluginManager pluginManager;
   private ISystemConfig systemConfig;
+  private IPluginResourceLoader resLoader;
+
 
   @Override
   public void ready() throws PluginLifecycleException {
-    pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     systemConfig = PentahoSystem.get( ISystemConfig.class );
+    resLoader = PentahoSystem.get( IPluginResourceLoader.class, null );
 
-    pluginManager.getRegisteredPlugins().forEach( this::registerPluginAppShelConfig );
+    pluginManager.getRegisteredPlugins().forEach( this::registerPluginAppShellConfig );
   }
 
-  private void registerPluginAppShelConfig( String pluginId ) {
-    final Properties properties = new Properties();
-    final String appShellConfig =
-      (String) pluginManager.getPluginSetting( pluginId, APP_SHELL_CONFIG_PREFIX, null );
+  private void registerPluginAppShellConfig( String pluginId ) {
+    ClassLoader loader = PentahoSystem.get( ClassLoader.class, null, Collections.singletonMap( PLUGIN_ID, pluginId ) );
+    Optional.ofNullable( resLoader.getResourceAsStream( loader, APP_SHELL_CONFIG_FILENAME ) )
+      .ifPresent(
+        stream -> processConfigStream( pluginId, stream )
+      );
+  }
 
-    if ( !StringUtils.isEmpty( appShellConfig ) ) {
-      properties.put( pluginId, appShellConfig );
+  private void processConfigStream( String pluginId, InputStream stream ) {
+    final Properties properties = new Properties();
+
+    try {
+      final String jsonTxt = IOUtils.toString( stream, StandardCharsets.UTF_8 );
+      logger.debug( "App Shell configuration for {} -> {}", pluginId, jsonTxt );
+      properties.put( APP_SHELL_CONFIG_PREFIX, jsonTxt );
+      registerConfiguration( pluginId, properties );
+    } catch ( IOException e ) {
+      // TODO should a faulty configuration be further escalated (throw)?
+      logger.error( "Error parsing app-shell.config.json for plugin: {}", pluginId, e );
+    } finally {
       try {
-        systemConfig.registerConfiguration( new PropertiesFileConfiguration( pluginId, properties ) );
+        stream.close();
       } catch ( IOException e ) {
-        logger.error( "Error registering app-shell properties for plugin: {}", pluginId, e );
+        logger.error( "Error closing stream for plugin: {}", pluginId, e );
       }
     }
+  }
+
+  private void registerConfiguration( String pluginId, Properties properties ) {
+    try {
+      systemConfig.registerConfiguration( new PropertiesFileConfiguration( pluginId, properties ) );
+    } catch ( IOException e ) {
+      // TODO Plugin app shell config will be missing, should the error be further escalated (throw)?
+      logger.error( "Error registering properties for plugin: {}", pluginId, e );
+    }
+  }
+
+  /*
+   * TODO just for FYI:
+   * This class needs to be registed as a lifecycle-listener on plugin.xml in order for IPlatformReadyListener.ready()
+   * to be called. However, only that is not enough, since for this to really be a lifecycle-listener, it also needs to
+   * implement IPluginLifecycleListener to register the plugin and avoid the error on startup:
+   * PluginManager.ERROR_0016 - Lifecycle listener defined for plugin app-shell ([com.pentaho.platform
+   * .PluginsAppShellConfigHandler]) is not an actual lifecycle listener
+   */
+  @Override
+  public void init() throws PluginLifecycleException {
+  }
+
+  @Override
+  public void loaded() throws PluginLifecycleException {
+  }
+
+  @Override
+  public void unLoaded() throws PluginLifecycleException {
   }
 }
