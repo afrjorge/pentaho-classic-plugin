@@ -20,7 +20,7 @@
  * explicitly covering such access.
  */
 
-package com.pentaho.platform;
+package com.pentaho.appshell.resources;
 
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
@@ -46,8 +46,8 @@ import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPlugin
 import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager.SETTINGS_PREFIX;
 
 public class PluginsAppShellConfigHandler implements IPluginLifecycleListener, IPlatformReadyListener {
-  private static final String APP_SHELL_CONFIG_PREFIX = SETTINGS_PREFIX + "app-shell-config";
-  private static final String APP_SHELL_CONFIG_FILENAME = "app-shell.config.json";
+  public static final String APP_SHELL_CONFIG_PREFIX = SETTINGS_PREFIX + "app-shell-config";
+  public static final String APP_SHELL_CONFIG_FILENAME = "app-shell.config.json";
 
   private final Logger logger = LoggerFactory.getLogger( getClass() );
 

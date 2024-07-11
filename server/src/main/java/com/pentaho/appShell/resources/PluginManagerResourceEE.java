@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import static com.pentaho.platform.PluginsAppShellConfigHandler.APP_SHELL_CONFIG_PREFIX;
+import static com.pentaho.appshell.resources.PluginsAppShellConfigHandler.APP_SHELL_CONFIG_PREFIX;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path( "/plugin-manager2" )

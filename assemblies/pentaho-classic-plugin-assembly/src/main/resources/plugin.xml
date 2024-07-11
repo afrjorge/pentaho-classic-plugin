@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin title="Classic Plugin" name="app-shell">
-  <lifecycle-listener class="com.pentaho.platform.PluginsAppShellConfigHandler"/>
+  <lifecycle-listener class="com.pentaho.appshell.resources.PluginsAppShellConfigHandler"/>
   <overlays/>
   <perspective/>
   <external-resources/>
