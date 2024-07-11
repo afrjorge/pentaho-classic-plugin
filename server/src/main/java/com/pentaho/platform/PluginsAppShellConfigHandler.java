@@ -24,6 +24,7 @@ package com.pentaho.platform;
 
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
+import org.pentaho.platform.api.engine.IPluginLifecycleListener;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.IPluginResourceLoader;
 import org.pentaho.platform.api.engine.ISystemConfig;
@@ -44,7 +45,7 @@ import java.util.Properties;
 import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager.PLUGIN_ID;
 import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager.SETTINGS_PREFIX;
 
-public class PluginsAppShellConfigHandler implements IPlatformReadyListener {
+public class PluginsAppShellConfigHandler implements IPluginLifecycleListener, IPlatformReadyListener {
   private static final String APP_SHELL_CONFIG_PREFIX = SETTINGS_PREFIX + "app-shell-config";
   private static final String APP_SHELL_CONFIG_FILENAME = "app-shell.config.json";
 
@@ -98,5 +99,25 @@ public class PluginsAppShellConfigHandler implements IPlatformReadyListener {
       // TODO Plugin app shell config will be missing, should the error be further escalated (throw)?
       logger.error( "Error registering properties for plugin: {}", pluginId, e );
     }
+  }
+
+  /*
+   * TODO just for FYI:
+   * This class needs to be registed as a lifecycle-listener on plugin.xml in order for IPlatformReadyListener.ready()
+   * to be called. However, only that is not enough, since for this to really be a lifecycle-listener, it also needs to
+   * implement IPluginLifecycleListener to register the plugin and avoid the error on startup:
+   * PluginManager.ERROR_0016 - Lifecycle listener defined for plugin app-shell ([com.pentaho.platform
+   * .PluginsAppShellConfigHandler]) is not an actual lifecycle listener
+   */
+  @Override
+  public void init() throws PluginLifecycleException {
+  }
+
+  @Override
+  public void loaded() throws PluginLifecycleException {
+  }
+
+  @Override
+  public void unLoaded() throws PluginLifecycleException {
   }
 }
