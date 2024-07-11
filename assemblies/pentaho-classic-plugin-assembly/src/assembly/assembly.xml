@@ -8,6 +8,33 @@
   </formats>
   <baseDirectory>app-shell</baseDirectory>
 
+  <moduleSets>
+    <moduleSet>
+      <!-- Enable access to all projects in the current multi-module build! -->
+      <useAllReactorProjects>true</useAllReactorProjects>
+      <!-- Now, select which projects to include in this module-set. -->
+      <includes>
+        <include>pentaho:pentaho-classic-plugin-server</include>
+      </includes>
+      <sources>
+        <includeModuleDirectory>false</includeModuleDirectory>
+        <fileSets>
+          <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+              <include>pentaho-classic-plugin-server*jar</include>
+            </includes>
+            <excludes>
+              <exclude>*sources*</exclude>
+              <exclude>*test*</exclude>
+            </excludes>
+          </fileSet>
+        </fileSets>
+      </sources>
+    </moduleSet>
+  </moduleSets>
+
   <dependencySets>
     <dependencySet>
       <outputDirectory>/webclient</outputDirectory>
@@ -21,4 +48,6 @@
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>
+
+
 </assembly>
