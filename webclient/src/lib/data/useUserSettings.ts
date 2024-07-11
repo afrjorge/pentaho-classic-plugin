@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
+import { HvSnackbarVariant } from "@hitachivantara/uikit-react-core";
+import { HvDashboardProps } from "@hitachivantara/uikit-react-lab";
+import { createSnackbar } from "../utils";
 import { useSWR } from "./config";
+import defaultDashboard from "./defaultDashboard.json";
+
+export interface LayoutConfig {
+  cols?: number; // number of columns in the layout: area positions are based on this number
+  layout?: HvDashboardProps["layout"]; // layout: available dashboard areas and their size and position
+  widgets?: { id: string, module: string, moduleProps: Record<string, string> }[]; // items connected to the dashboard areas
+  labels?: Record<string, string>; // dashboard area labels: the key is the area id and the value is the label
+}
+
+const API = "/pentaho/api/user-settings";
 
 const parseUserSettingFiles = (data: string) => {
   try {
@@ -14,8 +27,9 @@ const parseUserSettingFiles = (data: string) => {
         id: filename,
         name: title,
         type: filename.split(".")[1],
+        path: fullPath,
         owner: null,
-        update: Date.now() - lastUse
+        update: lastUse
       }
     });
   } catch (error) {
@@ -24,6 +38,32 @@ const parseUserSettingFiles = (data: string) => {
 
   return [];
 };
+
+// post methods
+
+export const postHomeDashboard = async (dashboard?: LayoutConfig) => {
+  let snackbarVariant: HvSnackbarVariant = "error";
+  let snackbarMessage = "Failed to save dashboard!";
+
+  try {
+    const url = `${API}/home-dashboard`;
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(dashboard)
+    });
+
+    if (response.ok) {
+      snackbarVariant = "success";
+      snackbarMessage = "Dashboard saved successfully";
+    }
+  } catch (error) {
+    console.error(snackbarMessage, error);
+  }
+
+  createSnackbar(snackbarMessage, snackbarVariant);
+}
+
+// get methods
 
 const getUserSettings = async (url: RequestInfo | URL) => {
   try {
@@ -41,7 +81,7 @@ const getUserSettings = async (url: RequestInfo | URL) => {
 };
 
 const useUserSettings = (setting = "list") => {
-  return useSWR(`/pentaho/api/user-settings/${setting}`, getUserSettings);
+  return useSWR(`${API}/${setting}`, getUserSettings);
 };
 
 export const useRecentFiles = () => {
@@ -78,6 +118,24 @@ export const useFavoriteFiles = () => {
   }, [data, isLoading]);
 
   return { favoriteFiles, isLoading, ...others };
+};
+
+export const useHomeDashboard = () => {
+  const [dashboard, setDashboard] = useState<LayoutConfig>();
+
+  const {
+    data,
+    isLoading,
+    ...others
+  } = useUserSettings("home-dashboard");
+
+  useEffect(() => {
+    if (!isLoading) {
+      setDashboard(data?.length > 0 ? JSON.parse(data) : defaultDashboard);
+    }
+  }, [data, isLoading]);
+
+  return { dashboard, isLoading, ...others };
 };
 
 /*

@@ -20,7 +20,8 @@
   "mainPanel": {
     "#comment3": "replace @self with '@pentaho-apps/:pluginId'",
     "views": [
-      { "bundle": "@self/pages/Home.js",  "route": "/" }
+      { "bundle": "@self/pages/Home.js",  "route": "/" },
+      { "bundle": "@self/pages/Open.js",  "route": "/open" }
     ]
   }
 }

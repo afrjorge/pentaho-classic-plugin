@@ -1,9 +1,20 @@
 import React, {useMemo, useState} from "react";
 import { useTranslation } from "react-i18next";
-import { HvTab, HvTabs, HvTabsProps, HvTypography } from "@hitachivantara/uikit-react-core";
-import { Heart, Preview } from "@hitachivantara/uikit-react-icons";
+import { useHvNavigation } from "@hitachivantara/app-shell-navigation";
+import {
+  HvActionsGeneric,
+  HvSection,
+  HvTab,
+  HvTabs,
+  HvTabsProps,
+  HvToggleButton,
+  hvDateColumn,
+  hvTextColumn
+} from "@hitachivantara/uikit-react-core";
+import { Heart, HeartSelected, Preview } from "@hitachivantara/uikit-react-icons";
 import { useFavoriteFiles, useRecentFiles } from "../../../lib/data/useUserSettings";
 import Table from "../../common/Table";
+import classes from "./styles";
 
 // recent/favorite files related to current user
 // do we want to get recent files from all users in the platform?
@@ -14,34 +25,70 @@ import Table from "../../common/Table";
 //    - /pentaho/api/repo/files/:path:to:repo:file/acl
 //    - /pentaho/api/repo/files/:path:to:repo:file/properties
 //
-const getColumns = (t) => [
-  {
+// @ts-ignore
+const getColumns = (t, onAction) => [
+  hvTextColumn({
     Header: "Name", // file name
     accessor: "name",
-    style: { minWidth: 120 },
-  },
-  {
+    style: { minWidth: 100 },
+  }),
+  hvTextColumn({
     Header: "Type", // file type
     accessor: "type",
-    style: { minWidth: 100 },
+    style: { minWidth: 80 },
+    // @ts-ignore
     Cell: (row) => t(`type.${row.value}`),
-  },
+  }),
+  hvDateColumn(
+    { Header: "Last Modified", accessor: "update", style: { minWidth: 100 } },
+    "DD/MM/YYYY HH:mm",
+  ),
+  hvTextColumn({ Header: "Owner", accessor: "owner" }),
   {
-    Header: "Last Modified", // time and user
-    accessor: "update",
-    style: { minWidth: 100 },
-    // Cell: (row) => (<div>{new Date(row.value)}</div>),
+    id: "favorite",
+    // @ts-ignore
+    Cell: ({ row }) => (
+      <HvToggleButton
+        aria-label="Favorite"
+        notSelectedIcon={<Heart color="negative" />}
+        selectedIcon={<HeartSelected color="negative" />}
+        selected={row.isSelectionLocked}
+        onClick={() => row.toggleRowLockedSelection?.()}
+      />
+    ),
   },
-  { Header: "Owner", accessor: "owner", Cell: () => "not implemented", },
-  // { Header: "is favorite?", accessor: "priority" },
-  { Header: "Who can access", accessor: "access", Cell: () => "not implemented", },
-  // { Header: "Actions", accessor: "priority" },
+  hvTextColumn({ Header: "Who can access", accessor: "access" }),
+  {
+    id: "actions",
+    variant: "actions",
+    style: { minWidth: 80 },
+    Cell: ({ row }: { row: any }) => (
+      <HvActionsGeneric
+        actions={[{ id: "open", label: "Open", disabled: row.original.type === "xaction" }]}
+        maxVisibleActions={1}
+        // @ts-ignore
+        onAction={(evt, action) => onAction?.(evt, action, row)}
+      />
+    ),
+  }
 ];
 
-const RecentActivity = () => {
+// @ts-ignore
+const RecentActivity = ({ title }) => {
   const { t } = useTranslation("common");
+  const { navigate } = useHvNavigation();
 
-  const columns = useMemo(() => getColumns(t), []);
+  // @ts-ignore
+  const onAction = (_, action, row) => {
+    if (action.id !== "open") {
+      return;
+    }
+
+    const { type, path } = row.original;
+    navigate({ viewBundle: "/pages/Open" }, { state: { type, path, mode: "viewer" } });
+  }
+
+  const columns = useMemo(() => getColumns(t, onAction), []);
 
   const { recentFiles } = useRecentFiles();
   const { favoriteFiles } = useFavoriteFiles();
@@ -54,22 +101,22 @@ const RecentActivity = () => {
 
   const renderTabContent = (tab: number) => (
     <>
+      {/* @ts-ignore*/}
       {tab === 0 && <Table columns={columns} data={recentFiles} recordCount={recentFiles?.length}/>}
+      {/* @ts-ignore*/}
       {tab === 1 && <Table columns={columns} data={favoriteFiles} recordCount={favoriteFiles?.length}/>}
     </>
   );
 
   return (
-    <>
-      <HvTypography variant="label">Based on your recent activity (WIP)</HvTypography>
-
-      <HvTabs value={tab} onChange={handleTabChange}>
+    <HvSection key="recent-activity" title={title} className={classes.root} classes={{ content: classes.content }}>
+      <HvTabs className={classes.tabs} value={tab} onChange={handleTabChange}>
         <HvTab icon={<Preview />} iconPosition="start" label="Recent" />
         <HvTab icon={<Heart />} iconPosition="start"  label="Favourites" />
       </HvTabs>
 
       {renderTabContent(tab)}
-    </>
+    </HvSection>
   )
 }
 
