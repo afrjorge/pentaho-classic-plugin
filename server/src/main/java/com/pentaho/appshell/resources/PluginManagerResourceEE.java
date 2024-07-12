@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import static com.pentaho.appshell.resources.PluginsAppShellConfigHandler.APP_SHELL_CONFIG_PREFIX;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-@Path( "/plugin-manager2" )
+@Path( "/app-shell/api" )
 public class PluginManagerResourceEE {
   public PluginManagerResourceEE() {
   }
@@ -53,7 +53,7 @@ public class PluginManagerResourceEE {
    * @return list of <code> App Shell configurations </code>
    */
   @GET
-  @Path( "/app-shell-config" )
+  @Path( "/config" )
   @Produces( { APPLICATION_JSON } )
   public Response getAppShellConfig() throws JSONException {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
@@ -78,7 +78,7 @@ public class PluginManagerResourceEE {
    * @return list of <code> App Shell configurations </code>
    */
   @GET
-  @Path( "/app-shell-config2" )
+  @Path( "/config2" )
   @Produces( { APPLICATION_JSON } )
   public Response getAppShellConfig2() {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
@@ -101,7 +101,7 @@ public class PluginManagerResourceEE {
    * @return list of <code> App Shell configurations </code>
    */
   @GET
-  @Path( "/app-shell-config3" )
+  @Path( "/config3" )
   @Produces( { APPLICATION_JSON } )
   public Response getAppShellConfig3() {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
