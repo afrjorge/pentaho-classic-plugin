@@ -20,7 +20,7 @@
  * explicitly covering such access.
  */
 
-package com.pentaho.appshell.resources;
+package com.pentaho.appshell.apis;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
@@ -40,10 +40,11 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.pentaho.appshell.listeners.AppShellConfigHandler.APP_SHELL_CONFIG_SETTINGS;
+import static com.pentaho.appshell.listeners.AppShellConfigHandler.APP_SHELL_IMPORT_MAP_SETTINGS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path( "/app-shell/api" )
-public class PluginManagerResourceEE {
+public class AppShellEndpoints {
   /**
    * Retrieve the list of App Shell configurations from all registered plugins.
    *
@@ -55,18 +56,47 @@ public class PluginManagerResourceEE {
   public Response getAppShellConfig() throws JSONException {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
 
-    JSONArray appShellConfig = new JSONArray();
+    JSONArray appShellConfigArray = new JSONArray();
 
     for ( String id : pluginManager.getRegisteredPlugins() ) {
-      final String s =
+      final String configStr =
         (String) pluginManager.getPluginSetting( id, APP_SHELL_CONFIG_SETTINGS, null );
 
-      if ( !StringUtils.isEmpty( s ) ) {
-        appShellConfig.put( new JSONObject( s ) );
+      if ( !StringUtils.isEmpty( configStr ) ) {
+        JSONObject config = new JSONObject( configStr );
+
+        appShellConfigArray.put( config );
       }
     }
 
-    return Response.ok( appShellConfig.toString(), MediaType.APPLICATION_JSON ).build();
+    return Response.ok( appShellConfigArray.toString(), MediaType.APPLICATION_JSON ).build();
+  }
+
+  /**
+   * Retrieve the list of App Shell import maps from all registered plugins.
+   *
+   * @return list of App Shell import maps
+   */
+  @GET
+  @Path( "/importmap" )
+  @Produces( { APPLICATION_JSON } )
+  public Response getAppShellImportMap() throws JSONException {
+    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
+
+    JSONArray appShellImportMapArray = new JSONArray();
+
+    for ( String id : pluginManager.getRegisteredPlugins() ) {
+      final String importMapStr =
+        (String) pluginManager.getPluginSetting( id, APP_SHELL_IMPORT_MAP_SETTINGS, null );
+
+      if ( !StringUtils.isEmpty( importMapStr ) ) {
+        JSONObject importMap = new JSONObject( importMapStr );
+
+        appShellImportMapArray.put( importMap );
+      }
+    }
+
+    return Response.ok( appShellImportMapArray.toString(), MediaType.APPLICATION_JSON ).build();
   }
 
   /**

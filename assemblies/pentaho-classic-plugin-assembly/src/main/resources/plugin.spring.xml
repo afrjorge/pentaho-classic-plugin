@@ -15,5 +15,5 @@
   <!-- REST endpoints' base URI is <webapp>/plugin/<plugin-id>/api/ -->
   <bean id="api" class="org.pentaho.platform.web.servlet.JAXRSPluginServlet"/>
 
-  <bean class="com.pentaho.appshell.resources.PluginManagerResourceEE"/>
+  <bean class="com.pentaho.appshell.apis.AppShellEndpoints"/>
 </beans>

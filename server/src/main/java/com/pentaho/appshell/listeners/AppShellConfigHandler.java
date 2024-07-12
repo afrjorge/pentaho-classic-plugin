@@ -53,6 +53,7 @@ import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPlugin
 public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatformReadyListener {
   public static final String APP_SHELL = "app-shell";
   public static final String APP_SHELL_CONFIG_SETTINGS = APP_SHELL + "/config";
+  public static final String APP_SHELL_IMPORT_MAP_SETTINGS = APP_SHELL + "/importmap";
   public static final String APP_SHELL_CONFIG_FILENAME = APP_SHELL + ".config.json";
 
   private final Logger logger = LoggerFactory.getLogger( getClass() );
@@ -61,9 +62,8 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
   private IPluginResourceLoader resLoader;
   private ObjectReader configurationReader;
 
-
   @Override
-  public void ready() throws PluginLifecycleException {
+  public void ready() {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     systemConfig = PentahoSystem.get( ISystemConfig.class );
     resLoader = PentahoSystem.get( IPluginResourceLoader.class, null );
@@ -135,8 +135,7 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
   }
 
   /*
-   * TODO just for FYI:
-   * This class needs to be registed as a lifecycle-listener on plugin.xml in order for IPlatformReadyListener.ready()
+   * This class needs to be registered as a lifecycle-listener on plugin.xml in order for IPlatformReadyListener.ready()
    * to be called. However, only that is not enough, since for this to really be a lifecycle-listener, it also needs to
    * implement IPluginLifecycleListener to register the plugin and avoid the error on startup:
    * PluginManager.ERROR_0016 - Lifecycle listener defined for plugin app-shell ([com.pentaho.platform
@@ -144,14 +143,17 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
    */
   @Override
   public void init() throws PluginLifecycleException {
+    // ignore
   }
 
   @Override
   public void loaded() throws PluginLifecycleException {
+    // ignore
   }
 
   @Override
   public void unLoaded() throws PluginLifecycleException {
+    // ignore
   }
 
   @JsonIgnoreProperties( ignoreUnknown = true )
