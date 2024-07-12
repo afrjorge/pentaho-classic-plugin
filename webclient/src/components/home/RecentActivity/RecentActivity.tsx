@@ -15,6 +15,7 @@ import { Heart, HeartSelected, Preview } from "@hitachivantara/uikit-react-icons
 import { useFavoriteFiles, useRecentFiles } from "../../../lib/data/useUserSettings";
 import Table from "../../common/Table";
 import classes from "./styles";
+import {createSnackbar} from "../../../lib/utils";
 
 // recent/favorite files related to current user
 // do we want to get recent files from all users in the platform?
@@ -53,7 +54,11 @@ const getColumns = (t, onAction) => [
         notSelectedIcon={<Heart color="negative" />}
         selectedIcon={<HeartSelected color="negative" />}
         selected={row.isSelectionLocked}
-        onClick={() => row.toggleRowLockedSelection?.()}
+        onClick={() => {
+          row.toggleRowLockedSelection?.();
+
+          createSnackbar("Not implemented!", "error");
+        }}
       />
     ),
   },

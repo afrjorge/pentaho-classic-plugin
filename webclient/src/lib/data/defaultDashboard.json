@@ -2,16 +2,16 @@
   "cols": 12,
   "layout": [
     {
-      "i": "quick-access", "h": 1, "w": 12, "x": 0, "y": 0
+      "i": "quick-access", "h": 2, "w": 12, "x": 0, "y": 0
     },
     {
-      "i": "recent-activity", "h": 6, "w": 12, "x": 0, "y": 1
+      "i": "recent-activity", "h": 4, "w": 12, "x": 0, "y": 2
     }
   ],
   "widgets": [
     {
       "id": "quick-access",
-      "module": null,
+      "module": "@pentaho-apps/app-shell-home/components/home/QuickAccess.js",
       "moduleProps": { "title": "Quick Access (WIP)" }
     },
     {

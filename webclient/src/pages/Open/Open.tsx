@@ -6,6 +6,7 @@ import {
   buildAnalyzerUrl,
   buildCDAUrl,
   buildFileGeneratedContentUrl,
+  buildFileViewerUrl,
   buildPRPTIUrl
 } from "../../lib/utils";
 
@@ -37,9 +38,12 @@ const Open: React.FC = () => {
         return buildCDAUrl(path);
       case "prpti":
         return buildPRPTIUrl(path, mode);
+      case "wcdf":
+      case "xcdf":
+        return buildFileGeneratedContentUrl(path);
 
       default:
-        return buildFileGeneratedContentUrl(path);
+        return buildFileViewerUrl(path);
     }
   }, [type, path]);
 

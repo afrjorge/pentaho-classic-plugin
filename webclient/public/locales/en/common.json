@@ -7,6 +7,8 @@
     "wcdf": "CDE Dashboard",
     "xdash": "Pentaho Dashboard",
     "prpt": "Pentaho Report",
-    "prpti": "Pentaho Interactive Report"
+    "prpti": "Pentaho Interactive Report",
+    "kjb": "Job",
+    "ktr": "Transformation"
   }
 }

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { mutate } from "swr";
 import { HvSnackbarVariant } from "@hitachivantara/uikit-react-core";
 import { HvDashboardProps } from "@hitachivantara/uikit-react-lab";
 import { createSnackbar } from "../utils";
 import { useSWR } from "./config";
 import defaultDashboard from "./defaultDashboard.json";
+
 
 export interface LayoutConfig {
   cols?: number; // number of columns in the layout: area positions are based on this number
@@ -42,19 +44,25 @@ const parseUserSettingFiles = (data: string) => {
 // post methods
 
 export const postHomeDashboard = async (dashboard?: LayoutConfig) => {
+  const action = dashboard != null ? "save" : "reset";
+
   let snackbarVariant: HvSnackbarVariant = "error";
-  let snackbarMessage = "Failed to save dashboard!";
+  let snackbarMessage = `Failed to ${action} dashboard!`;
 
   try {
     const url = `${API}/home-dashboard`;
     const response = await fetch(url, {
       method: "POST",
-      body: JSON.stringify(dashboard)
+      body: action === "save" ? JSON.stringify(dashboard) : ""
     });
 
     if (response.ok) {
+      if (action === "reset") {
+        await mutate(`${API}/home-dashboard`)
+      }
+
       snackbarVariant = "success";
-      snackbarMessage = "Dashboard saved successfully";
+      snackbarMessage = `Dashboard ${action} successful`;
     }
   } catch (error) {
     console.error(snackbarMessage, error);
@@ -131,7 +139,9 @@ export const useHomeDashboard = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      setDashboard(data?.length > 0 ? JSON.parse(data) : defaultDashboard);
+      const dash = data != null ? JSON.parse(data) : undefined;
+
+      setDashboard(dash ?? defaultDashboard);
     }
   }, [data, isLoading]);
 

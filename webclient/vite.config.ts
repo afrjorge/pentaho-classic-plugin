@@ -32,7 +32,10 @@ export default defineConfig(({ mode }) => {
         type: appShellType,
         autoViewsAndRoutes: true,
         autoMenu: true,
-        modules: ["src/components/home/RecentActivity"]
+        modules: [
+          "src/components/home/RecentActivity",
+          "src/components/home/QuickAccess"
+        ]
       }, env),
     ],
 

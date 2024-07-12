@@ -8,7 +8,7 @@ import {
   HvSection,
   HvTypography, theme
 } from "@hitachivantara/uikit-react-core";
-import { Caution, Save, Tool } from "@hitachivantara/uikit-react-icons";
+import { Caution, Delete, Save, Tool } from "@hitachivantara/uikit-react-icons";
 import { HvDashboard } from "@hitachivantara/uikit-react-lab";
 import { Custom } from "../../components/common/Custom";
 import useSession from "../../lib/data/useSession";
@@ -63,34 +63,45 @@ export default () => {
     <div className={classes.root}>
       <HvGrid container flexDirection="column">
         <HvGrid container item justifyContent="space-between">
-          <HvGrid item>
+          <HvGrid item xs={8}>
             <div className={classes.header}>
               <HvTypography variant="xxsTitle">{t("title")}</HvTypography>
               <HvTypography variant="mTitle">{username}</HvTypography>
             </div>
           </HvGrid>
-          <HvGrid item>
-            <HvButton
-              variant="secondaryGhost"
-              startIcon={<Save />}
-              onClick={() => postHomeDashboard(layoutConfig)}
-            >
-              {`Save dashboard`}
-            </HvButton>
-            <HvButton
-              variant="secondaryGhost"
-              startIcon={<Tool />}
-              onClick={() => setCanDrag((prev) => !prev)}
-            >
-              {`Drag is ${canDrag ? "no" : "off"}`}
-            </HvButton>
-            <HvButton
-              variant="secondaryGhost"
-              startIcon={<Tool />}
-              onClick={() => setCanResize((prev) => !prev)}
-            >
-              {`Resize is ${canResize ? "on" : "off"}`}
-            </HvButton>
+          <HvGrid container item xs={4} justifyContent="flex-end">
+            <HvGrid item>
+              <HvButton
+                variant="secondaryGhost"
+                startIcon={<Tool />}
+                onClick={() => setCanDrag((prev) => !prev)}
+              >
+                {`Drag is ${canDrag ? "no" : "off"}`}
+              </HvButton>
+              <HvButton
+                variant="secondaryGhost"
+                startIcon={<Tool />}
+                onClick={() => setCanResize((prev) => !prev)}
+              >
+                {`Resize is ${canResize ? "on" : "off"}`}
+              </HvButton>
+            </HvGrid>
+            <HvGrid item>
+              <HvButton
+                variant="secondaryGhost"
+                startIcon={<Save />}
+                onClick={() => postHomeDashboard(layoutConfig)}
+              >
+                {`Save`}
+              </HvButton>
+              <HvButton
+                variant="secondaryGhost"
+                startIcon={<Delete />}
+                onClick={() => postHomeDashboard()}
+              >
+                {`Reset`}
+              </HvButton>
+            </HvGrid>
           </HvGrid>
         </HvGrid>
 
