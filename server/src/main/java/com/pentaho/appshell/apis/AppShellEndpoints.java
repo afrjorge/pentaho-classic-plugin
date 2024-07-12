@@ -35,9 +35,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static com.pentaho.appshell.listeners.AppShellConfigHandler.APP_SHELL_CONFIG_SETTINGS;
 import static com.pentaho.appshell.listeners.AppShellConfigHandler.APP_SHELL_IMPORT_MAP_SETTINGS;
@@ -54,22 +51,8 @@ public class AppShellEndpoints {
   @Path( "/config" )
   @Produces( { APPLICATION_JSON } )
   public Response getAppShellConfig() throws JSONException {
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
-
-    JSONArray appShellConfigArray = new JSONArray();
-
-    for ( String id : pluginManager.getRegisteredPlugins() ) {
-      final String configStr =
-        (String) pluginManager.getPluginSetting( id, APP_SHELL_CONFIG_SETTINGS, null );
-
-      if ( !StringUtils.isEmpty( configStr ) ) {
-        JSONObject config = new JSONObject( configStr );
-
-        appShellConfigArray.put( config );
-      }
-    }
-
-    return Response.ok( appShellConfigArray.toString(), MediaType.APPLICATION_JSON ).build();
+    return Response.ok( getAppShellSettings( APP_SHELL_CONFIG_SETTINGS ).toString(), MediaType.APPLICATION_JSON )
+      .build();
   }
 
   /**
@@ -81,63 +64,25 @@ public class AppShellEndpoints {
   @Path( "/importmap" )
   @Produces( { APPLICATION_JSON } )
   public Response getAppShellImportMap() throws JSONException {
+    return Response.ok( getAppShellSettings( APP_SHELL_IMPORT_MAP_SETTINGS ).toString(), MediaType.APPLICATION_JSON )
+      .build();
+  }
+
+  private JSONArray getAppShellSettings( String settingsId ) throws JSONException {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
 
-    JSONArray appShellImportMapArray = new JSONArray();
+    JSONArray appShellConfigArray = new JSONArray();
 
     for ( String id : pluginManager.getRegisteredPlugins() ) {
-      final String importMapStr =
-        (String) pluginManager.getPluginSetting( id, APP_SHELL_IMPORT_MAP_SETTINGS, null );
+      final String configStr = (String) pluginManager.getPluginSetting( id, settingsId, null );
 
-      if ( !StringUtils.isEmpty( importMapStr ) ) {
-        JSONObject importMap = new JSONObject( importMapStr );
+      if ( !StringUtils.isEmpty( configStr ) ) {
+        JSONObject config = new JSONObject( configStr );
 
-        appShellImportMapArray.put( importMap );
+        appShellConfigArray.put( config );
       }
     }
 
-    return Response.ok( appShellImportMapArray.toString(), MediaType.APPLICATION_JSON ).build();
-  }
-
-  /**
-   * Retrieve the list of App Shell configurations from all registered plugins.
-   *
-   * @return list of <code> App Shell configurations </code>
-   */
-  @GET
-  @Path( "/config2" )
-  @Produces( { APPLICATION_JSON } )
-  public Response getAppShellConfig2() {
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
-
-    JSONArray appShellConfig = pluginManager.getRegisteredPlugins().stream()
-      .map( plugin -> (String) pluginManager.getPluginSetting( plugin, APP_SHELL_CONFIG_SETTINGS, null ) )
-      .filter( StringUtils::isNotBlank )
-      .collect( Collector.of(
-        JSONArray::new, //init accumulator
-        JSONArray::put, //processing each element
-        JSONArray::put  //confluence 2 accumulators in parallel execution
-      ) );
-
-    return Response.ok( appShellConfig.toString(), MediaType.APPLICATION_JSON ).build();
-  }
-
-  /**
-   * Retrieve the list of App Shell configurations from all registered plugins.
-   *
-   * @return list of <code> App Shell configurations </code>
-   */
-  @GET
-  @Path( "/config3" )
-  @Produces( { APPLICATION_JSON } )
-  public Response getAppShellConfig3() {
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
-
-    List<String> appShellConfig = pluginManager.getRegisteredPlugins().stream()
-      .map( plugin -> (String) pluginManager.getPluginSetting( plugin, APP_SHELL_CONFIG_SETTINGS, null ) )
-      .filter( StringUtils::isNotBlank )
-      .collect( Collectors.toList() );
-
-    return Response.ok( appShellConfig, MediaType.APPLICATION_JSON ).build();
+    return appShellConfigArray;
   }
 }
