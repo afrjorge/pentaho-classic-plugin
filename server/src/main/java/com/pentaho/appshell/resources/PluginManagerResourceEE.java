@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import static com.pentaho.appshell.resources.PluginsAppShellConfigHandler.APP_SHELL_CONFIG_PREFIX;
+import static com.pentaho.appshell.listeners.AppShellConfigHandler.APP_SHELL_CONFIG_SETTINGS;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path( "/app-shell/api" )
@@ -59,7 +59,7 @@ public class PluginManagerResourceEE {
 
     for ( String id : pluginManager.getRegisteredPlugins() ) {
       final String s =
-        (String) pluginManager.getPluginSetting( id, APP_SHELL_CONFIG_PREFIX, null );
+        (String) pluginManager.getPluginSetting( id, APP_SHELL_CONFIG_SETTINGS, null );
 
       if ( !StringUtils.isEmpty( s ) ) {
         appShellConfig.put( new JSONObject( s ) );
@@ -81,7 +81,7 @@ public class PluginManagerResourceEE {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
 
     JSONArray appShellConfig = pluginManager.getRegisteredPlugins().stream()
-      .map( plugin -> (String) pluginManager.getPluginSetting( plugin, APP_SHELL_CONFIG_PREFIX, null ) )
+      .map( plugin -> (String) pluginManager.getPluginSetting( plugin, APP_SHELL_CONFIG_SETTINGS, null ) )
       .filter( StringUtils::isNotBlank )
       .collect( Collector.of(
         JSONArray::new, //init accumulator
@@ -104,7 +104,7 @@ public class PluginManagerResourceEE {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
 
     List<String> appShellConfig = pluginManager.getRegisteredPlugins().stream()
-      .map( plugin -> (String) pluginManager.getPluginSetting( plugin, APP_SHELL_CONFIG_PREFIX, null ) )
+      .map( plugin -> (String) pluginManager.getPluginSetting( plugin, APP_SHELL_CONFIG_SETTINGS, null ) )
       .filter( StringUtils::isNotBlank )
       .collect( Collectors.toList() );
 

@@ -20,8 +20,12 @@
  * explicitly covering such access.
  */
 
-package com.pentaho.appshell.resources;
+package com.pentaho.appshell.listeners;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonMerge;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
 import org.pentaho.platform.api.engine.IPluginLifecycleListener;
@@ -39,20 +43,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
 import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager.PLUGIN_ID;
-import static org.pentaho.platform.plugin.services.pluginmgr.PentahoSystemPluginManager.SETTINGS_PREFIX;
 
-public class PluginsAppShellConfigHandler implements IPluginLifecycleListener, IPlatformReadyListener {
-  public static final String APP_SHELL_CONFIG_PREFIX = SETTINGS_PREFIX + "app-shell-config";
-  public static final String APP_SHELL_CONFIG_FILENAME = "app-shell.config.json";
+public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatformReadyListener {
+  public static final String APP_SHELL = "app-shell";
+  public static final String APP_SHELL_CONFIG_SETTINGS = APP_SHELL + "/config";
+  public static final String APP_SHELL_CONFIG_FILENAME = APP_SHELL + ".config.json";
 
   private final Logger logger = LoggerFactory.getLogger( getClass() );
 
   private ISystemConfig systemConfig;
   private IPluginResourceLoader resLoader;
+  private ObjectReader configurationReader;
 
 
   @Override
@@ -61,25 +68,37 @@ public class PluginsAppShellConfigHandler implements IPluginLifecycleListener, I
     systemConfig = PentahoSystem.get( ISystemConfig.class );
     resLoader = PentahoSystem.get( IPluginResourceLoader.class, null );
 
-    pluginManager.getRegisteredPlugins().forEach( this::registerPluginAppShellConfig );
+    // TODO hmmmmmmmmmmmmmmmmmmmmmm to double check if it goes non-POC
+    ObjectMapper mapper = new ObjectMapper();
+    AppShellConfig configuration = new AppShellConfig();
+    configurationReader = mapper.readerForUpdating( configuration );
+
+    pluginManager.getRegisteredPlugins().forEach( this::handleAppShellConfigurationByPlugin );
+
+    registerMergedAppShellConfiguration( configuration );
   }
 
-  private void registerPluginAppShellConfig( String pluginId ) {
+  private void handleAppShellConfigurationByPlugin( String pluginId ) {
     ClassLoader loader = PentahoSystem.get( ClassLoader.class, null, Collections.singletonMap( PLUGIN_ID, pluginId ) );
     Optional.ofNullable( resLoader.getResourceAsStream( loader, APP_SHELL_CONFIG_FILENAME ) )
       .ifPresent(
-        stream -> processConfigStream( pluginId, stream )
+        stream -> processAppShellConfigurationStreamByPlugin( pluginId, stream )
       );
   }
 
-  private void processConfigStream( String pluginId, InputStream stream ) {
-    final Properties properties = new Properties();
-
+  private void processAppShellConfigurationStreamByPlugin( String pluginId, InputStream stream ) {
     try {
+      final Properties properties = new Properties();
       final String jsonTxt = IOUtils.toString( stream, StandardCharsets.UTF_8 );
       logger.debug( "App Shell configuration for {} -> {}", pluginId, jsonTxt );
-      properties.put( APP_SHELL_CONFIG_PREFIX, jsonTxt );
-      registerConfiguration( pluginId, properties );
+
+      final String processedJsonTxt = jsonTxt.replaceAll( "@self", "@pentaho-apps/" + pluginId );
+
+      configurationReader.readValue( processedJsonTxt, AppShellConfig.class );
+
+      properties.put( APP_SHELL_CONFIG_SETTINGS, processedJsonTxt );
+
+      registerAppShellConfigurationByPlugin( pluginId, properties );
     } catch ( IOException e ) {
       // TODO should a faulty configuration be further escalated (throw)?
       logger.error( "Error parsing app-shell.config.json for plugin: {}", pluginId, e );
@@ -92,12 +111,26 @@ public class PluginsAppShellConfigHandler implements IPluginLifecycleListener, I
     }
   }
 
-  private void registerConfiguration( String pluginId, Properties properties ) {
+  private void registerAppShellConfigurationByPlugin( String pluginId, Properties properties ) {
     try {
       systemConfig.registerConfiguration( new PropertiesFileConfiguration( pluginId, properties ) );
     } catch ( IOException e ) {
       // TODO Plugin app shell config will be missing, should the error be further escalated (throw)?
       logger.error( "Error registering properties for plugin: {}", pluginId, e );
+    }
+  }
+
+  private void registerMergedAppShellConfiguration( AppShellConfig configuration ) {
+    try {
+      Properties properties = new Properties();
+      ObjectMapper mapper = new ObjectMapper();
+
+      properties.put("config", mapper.writeValueAsString( configuration ) );
+
+      systemConfig.registerConfiguration( new PropertiesFileConfiguration( APP_SHELL, properties ) );
+    } catch ( IOException e ) {
+      // TODO The merged app shell config will be missing, should the error be further escalated (throw)?
+      logger.error( "Error registering merged App Shell configuration:", e );
     }
   }
 
@@ -119,5 +152,51 @@ public class PluginsAppShellConfigHandler implements IPluginLifecycleListener, I
 
   @Override
   public void unLoaded() throws PluginLifecycleException {
+  }
+
+  @JsonIgnoreProperties( ignoreUnknown = true )
+  public static class AppShellConfig {
+    @JsonMerge
+    public Map<String, String> apps;
+    @JsonMerge
+    public Header header;
+    @JsonMerge
+    public List<Menu> menu;
+    @JsonMerge
+    public List<Providers> providers;
+    @JsonMerge
+    public MainPanel mainPanel;
+  }
+
+  @JsonIgnoreProperties( ignoreUnknown = true )
+  public static class Header {
+    public List<HeaderActions> actions;
+  }
+
+  @JsonIgnoreProperties( ignoreUnknown = true )
+  public static class HeaderActions {
+    // something
+  }
+
+  @JsonIgnoreProperties( ignoreUnknown = true )
+  public static class Menu {
+    public String label;
+    public String target;
+  }
+
+  @JsonIgnoreProperties( ignoreUnknown = true )
+  public static class Providers {
+    // something
+  }
+
+  @JsonIgnoreProperties( ignoreUnknown = true )
+  public static class MainPanel {
+    public List<Views> views;
+  }
+
+  @JsonIgnoreProperties( ignoreUnknown = true )
+  public static class Views {
+    public String bundle;
+    public String route;
   }
 }
