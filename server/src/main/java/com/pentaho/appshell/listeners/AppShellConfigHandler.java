@@ -22,6 +22,7 @@
 
 package com.pentaho.appshell.listeners;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,6 +63,8 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
   private ISystemConfig systemConfig;
   private IPluginResourceLoader resLoader;
   private ObjectReader configurationReader;
+  private ObjectMapper mapper;
+  private Map<String, String> importmap;
 
   @Override
   public void ready() {
@@ -69,9 +73,10 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
     resLoader = PentahoSystem.get( IPluginResourceLoader.class, null );
 
     // TODO hmmmmmmmmmmmmmmmmmmmmmm to double check if it goes non-POC
-    ObjectMapper mapper = new ObjectMapper();
+    mapper = new ObjectMapper();
     AppShellConfig configuration = new AppShellConfig();
     configurationReader = mapper.readerForUpdating( configuration );
+    importmap = new HashMap<>();
 
     pluginManager.getRegisteredPlugins().forEach( this::handleAppShellConfigurationByPlugin );
 
@@ -94,6 +99,11 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
 
       final String processedJsonTxt = jsonTxt.replaceAll( "@self", "@pentaho-apps/" + pluginId );
 
+      // create importmap
+      AppShellConfig pluginAppShellConfig = mapper.readValue( processedJsonTxt, AppShellConfig.class );
+      updateImportMap(pluginId, pluginAppShellConfig.baseDir, pluginAppShellConfig.apps);
+
+      // merge appshell configs from plugin to the others
       configurationReader.readValue( processedJsonTxt, AppShellConfig.class );
 
       properties.put( APP_SHELL_CONFIG_SETTINGS, processedJsonTxt );
@@ -111,6 +121,11 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
     }
   }
 
+  private void updateImportMap(String pluginId, String baseDir, Map<String, String> apps) {
+    importmap.put( "@pentaho-apps/" + pluginId + "/", "/pentaho/api/repos/" + pluginId + "/" + baseDir + "/" );
+    importmap.putAll( apps );
+  }
+
   private void registerAppShellConfigurationByPlugin( String pluginId, Properties properties ) {
     try {
       systemConfig.registerConfiguration( new PropertiesFileConfiguration( pluginId, properties ) );
@@ -122,12 +137,14 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
 
   private void registerMergedAppShellConfiguration( AppShellConfig configuration ) {
     try {
-      Properties properties = new Properties();
-      ObjectMapper mapper = new ObjectMapper();
+      Properties configProps = new Properties();
+      configProps.put("value", mapper.writeValueAsString( configuration ) );
 
-      properties.put("config", mapper.writeValueAsString( configuration ) );
+      Properties importmapProps = new Properties();
+      importmapProps.put( "value", mapper.writeValueAsString( importmap ) );
 
-      systemConfig.registerConfiguration( new PropertiesFileConfiguration( APP_SHELL, properties ) );
+      systemConfig.registerConfiguration( new PropertiesFileConfiguration( APP_SHELL_CONFIG_SETTINGS, configProps ) );
+      systemConfig.registerConfiguration( new PropertiesFileConfiguration( APP_SHELL_IMPORT_MAP_SETTINGS, importmapProps ) );
     } catch ( IOException e ) {
       // TODO The merged app shell config will be missing, should the error be further escalated (throw)?
       logger.error( "Error registering merged App Shell configuration:", e );
@@ -158,7 +175,7 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
 
   @JsonIgnoreProperties( ignoreUnknown = true )
   public static class AppShellConfig {
-    @JsonMerge
+    public String baseDir;
     public Map<String, String> apps;
     @JsonMerge
     public Header header;

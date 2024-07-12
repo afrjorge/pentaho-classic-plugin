@@ -26,7 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.pentaho.platform.api.engine.IConfiguration;
 import org.pentaho.platform.api.engine.IPluginManager;
+import org.pentaho.platform.api.engine.ISystemConfig;
+import org.pentaho.platform.config.SystemConfig;
 import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
@@ -72,6 +75,9 @@ public class AppShellEndpoints {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
 
     JSONArray appShellConfigArray = new JSONArray();
+
+    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+    IConfiguration configuration = systemConfig.getConfiguration( settingsId );
 
     for ( String id : pluginManager.getRegisteredPlugins() ) {
       final String configStr = (String) pluginManager.getPluginSetting( id, settingsId, null );
