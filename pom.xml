@@ -10,18 +10,15 @@
     <version>10.3.0.0-SNAPSHOT</version>
   </parent>
 
+  <groupId>pentaho</groupId>
   <artifactId>pentaho-classic-plugin</artifactId>
   <version>10.3.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Parent pom for pentaho-classic-plugin</description>
-  <url>http://www.pentaho.com</url>
-
   <modules>
+    <module>server</module>
     <module>webclient</module>
     <module>assemblies</module>
-    <module>server</module>
   </modules>
 
 </project>
