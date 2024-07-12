@@ -44,9 +44,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path( "/app-shell/api" )
 public class PluginManagerResourceEE {
-  public PluginManagerResourceEE() {
-  }
-
   /**
    * Retrieve the list of App Shell configurations from all registered plugins.
    *
