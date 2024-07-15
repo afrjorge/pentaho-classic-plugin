@@ -22,15 +22,8 @@
 
 package com.pentaho.appshell.apis;
 
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.pentaho.platform.api.engine.IConfiguration;
-import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.api.engine.ISystemConfig;
-import org.pentaho.platform.config.SystemConfig;
-import org.pentaho.platform.engine.core.system.PentahoSessionHolder;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 
 import javax.ws.rs.GET;
@@ -38,9 +31,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 
 import static com.pentaho.appshell.listeners.AppShellConfigHandler.APP_SHELL_CONFIG_SETTINGS;
 import static com.pentaho.appshell.listeners.AppShellConfigHandler.APP_SHELL_IMPORT_MAP_SETTINGS;
+import static com.pentaho.appshell.listeners.AppShellConfigHandler.SETTINGS_VALUE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Path( "/app-shell/api" )
@@ -53,8 +48,8 @@ public class AppShellEndpoints {
   @GET
   @Path( "/config" )
   @Produces( { APPLICATION_JSON } )
-  public Response getAppShellConfig() throws JSONException {
-    return Response.ok( getAppShellSettings( APP_SHELL_CONFIG_SETTINGS ).toString(), MediaType.APPLICATION_JSON )
+  public Response getAppShellConfig() throws IOException {
+    return Response.ok( getAppShellSettings( APP_SHELL_CONFIG_SETTINGS ), MediaType.APPLICATION_JSON )
       .build();
   }
 
@@ -66,29 +61,36 @@ public class AppShellEndpoints {
   @GET
   @Path( "/importmap" )
   @Produces( { APPLICATION_JSON } )
-  public Response getAppShellImportMap() throws JSONException {
-    return Response.ok( getAppShellSettings( APP_SHELL_IMPORT_MAP_SETTINGS ).toString(), MediaType.APPLICATION_JSON )
+  public Response getAppShellImportMap() throws IOException {
+    return Response.ok( getAppShellSettings( APP_SHELL_IMPORT_MAP_SETTINGS ), MediaType.APPLICATION_JSON )
       .build();
   }
 
-  private JSONArray getAppShellSettings( String settingsId ) throws JSONException {
-    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
-
-    JSONArray appShellConfigArray = new JSONArray();
-
+  private String getAppShellSettings( String settingsId ) throws IOException {
     ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
     IConfiguration configuration = systemConfig.getConfiguration( settingsId );
 
-    for ( String id : pluginManager.getRegisteredPlugins() ) {
-      final String configStr = (String) pluginManager.getPluginSetting( id, settingsId, null );
-
-      if ( !StringUtils.isEmpty( configStr ) ) {
-        JSONObject config = new JSONObject( configStr );
-
-        appShellConfigArray.put( config );
-      }
-    }
-
-    return appShellConfigArray;
+    return configuration.getProperties().get( SETTINGS_VALUE ).toString();
   }
+
+  //  private JSONArray getAppShellSettings( String settingsId ) throws JSONException {
+  //    IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
+  //
+  //    JSONArray appShellConfigArray = new JSONArray();
+  //
+  //    ISystemConfig systemConfig = PentahoSystem.get( ISystemConfig.class );
+  //    IConfiguration configuration = systemConfig.getConfiguration( settingsId );
+  //
+  //    for ( String id : pluginManager.getRegisteredPlugins() ) {
+  //      final String configStr = (String) pluginManager.getPluginSetting( id, settingsId, null );
+  //
+  //      if ( !StringUtils.isEmpty( configStr ) ) {
+  //        JSONObject config = new JSONObject( configStr );
+  //
+  //        appShellConfigArray.put( config );
+  //      }
+  //    }
+  //
+  //    return appShellConfigArray;
+  //  }
 }
