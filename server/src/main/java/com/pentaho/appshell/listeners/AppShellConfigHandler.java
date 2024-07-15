@@ -22,11 +22,10 @@
 
 package com.pentaho.appshell.listeners;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonMerge;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import org.apache.commons.io.IOUtils;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
 import org.pentaho.platform.api.engine.IPluginLifecycleListener;
@@ -44,7 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,25 +60,20 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
 
   private ISystemConfig systemConfig;
   private IPluginResourceLoader resLoader;
-  private ObjectReader configurationReader;
   private ObjectMapper mapper;
-  private Map<String, String> importmap;
+  private AppShellConfig appShellConfig;
 
   @Override
   public void ready() {
     IPluginManager pluginManager = PentahoSystem.get( IPluginManager.class, PentahoSessionHolder.getSession() );
     systemConfig = PentahoSystem.get( ISystemConfig.class );
     resLoader = PentahoSystem.get( IPluginResourceLoader.class, null );
-
-    // TODO hmmmmmmmmmmmmmmmmmmmmmm to double check if it goes non-POC
     mapper = new ObjectMapper();
-    AppShellConfig configuration = new AppShellConfig();
-    configurationReader = mapper.readerForUpdating( configuration );
-    importmap = new HashMap<>();
+    appShellConfig = new AppShellConfig();
 
     pluginManager.getRegisteredPlugins().forEach( this::handleAppShellConfigurationByPlugin );
 
-    registerMergedAppShellConfiguration( configuration );
+    registerMergedConfigurationAndImportmap();
   }
 
   private void handleAppShellConfigurationByPlugin( String pluginId ) {
@@ -93,22 +86,23 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
 
   private void processAppShellConfigurationStreamByPlugin( String pluginId, InputStream stream ) {
     try {
-      final Properties properties = new Properties();
       final String jsonTxt = IOUtils.toString( stream, StandardCharsets.UTF_8 );
       logger.debug( "App Shell configuration for {} -> {}", pluginId, jsonTxt );
 
-      final String processedJsonTxt = jsonTxt.replaceAll( "@self", "@pentaho-apps/" + pluginId );
+      // Replace all instances of '@self' with the pluginId.
+      final String processedJsonTxt = jsonTxt.replace( "@self", "@pentaho-apps/" + pluginId );
 
-      // create importmap
-      AppShellConfig pluginAppShellConfig = mapper.readValue( processedJsonTxt, AppShellConfig.class );
-      updateImportMap(pluginId, pluginAppShellConfig.baseDir, pluginAppShellConfig.apps);
+      // 'appShellConfig' will be updated (merged) with the JSON file being read and, in addition, we extract the
+      // 'baseDir' value to construct the "own" app and register it in the apps to be used in the importmap.
+      AppShellConfig pluginAppShellConfig =
+        mapper.readerForUpdating( appShellConfig ).readValue( processedJsonTxt, AppShellConfig.class );
 
-      // merge appshell configs from plugin to the others
-      configurationReader.readValue( processedJsonTxt, AppShellConfig.class );
+      appShellConfig.apps.put( "@pentaho-apps/" + pluginId + "/",
+        "/pentaho/api/repos/" + pluginId + "/" + pluginAppShellConfig.baseDir + "/" );
 
-      properties.put( APP_SHELL_CONFIG_SETTINGS, processedJsonTxt );
-
-      registerAppShellConfigurationByPlugin( pluginId, properties );
+      // Since we are processing and registering the merged AppShell config, this may not be necessary. Or, if we see
+      // that this information can be useful then maybe see if we can "keep" it as an object (pluginAppShellConfig).
+      registerAppShellConfigurationByPlugin( pluginId, processedJsonTxt );
     } catch ( IOException e ) {
       // TODO should a faulty configuration be further escalated (throw)?
       logger.error( "Error parsing app-shell.config.json for plugin: {}", pluginId, e );
@@ -121,13 +115,10 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
     }
   }
 
-  private void updateImportMap(String pluginId, String baseDir, Map<String, String> apps) {
-    importmap.put( "@pentaho-apps/" + pluginId + "/", "/pentaho/api/repos/" + pluginId + "/" + baseDir + "/" );
-    importmap.putAll( apps );
-  }
-
-  private void registerAppShellConfigurationByPlugin( String pluginId, Properties properties ) {
+  private void registerAppShellConfigurationByPlugin( String pluginId, String pluginConfig ) {
     try {
+      final Properties properties = new Properties();
+      properties.put( APP_SHELL_CONFIG_SETTINGS, pluginConfig );
       systemConfig.registerConfiguration( new PropertiesFileConfiguration( pluginId, properties ) );
     } catch ( IOException e ) {
       // TODO Plugin app shell config will be missing, should the error be further escalated (throw)?
@@ -135,16 +126,17 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
     }
   }
 
-  private void registerMergedAppShellConfiguration( AppShellConfig configuration ) {
+  private void registerMergedConfigurationAndImportmap() {
     try {
       Properties configProps = new Properties();
-      configProps.put("value", mapper.writeValueAsString( configuration ) );
+      configProps.put( "value", mapper.writeValueAsString( appShellConfig ) );
 
       Properties importmapProps = new Properties();
-      importmapProps.put( "value", mapper.writeValueAsString( importmap ) );
+      importmapProps.put( "value", mapper.writeValueAsString( appShellConfig.apps ) );
 
       systemConfig.registerConfiguration( new PropertiesFileConfiguration( APP_SHELL_CONFIG_SETTINGS, configProps ) );
-      systemConfig.registerConfiguration( new PropertiesFileConfiguration( APP_SHELL_IMPORT_MAP_SETTINGS, importmapProps ) );
+      systemConfig.registerConfiguration(
+        new PropertiesFileConfiguration( APP_SHELL_IMPORT_MAP_SETTINGS, importmapProps ) );
     } catch ( IOException e ) {
       // TODO The merged app shell config will be missing, should the error be further escalated (throw)?
       logger.error( "Error registering merged App Shell configuration:", e );
@@ -173,9 +165,17 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
     // ignore
   }
 
+
+  /*
+   * The following classes map the defined structure of the app-shell.config.json file to be read by the backend.
+   * TODO Extract this to a separate module/package.
+   */
   @JsonIgnoreProperties( ignoreUnknown = true )
   public static class AppShellConfig {
+    @JsonProperty( access = JsonProperty.Access.WRITE_ONLY )
     public String baseDir;
+    @JsonProperty( access = JsonProperty.Access.WRITE_ONLY )
+    @JsonMerge
     public Map<String, String> apps;
     @JsonMerge
     public Header header;
