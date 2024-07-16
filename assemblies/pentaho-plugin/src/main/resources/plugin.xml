@@ -3,9 +3,6 @@
   <overlays />
   <perspective />
   <external-resources />
-  <static-paths>
-    <static-path url="/app-shell-home/resources" localFolder="resources"/>
-    <static-path url="/app-shell-home/webclient" localFolder="webclient"/>
-  </static-paths>
+  <static-paths />
   <content-types/>
 </plugin>
