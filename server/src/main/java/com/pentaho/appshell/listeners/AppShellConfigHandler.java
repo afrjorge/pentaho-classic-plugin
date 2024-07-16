@@ -25,6 +25,7 @@ package com.pentaho.appshell.listeners;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pentaho.appshell.data.AppShellConfig;
 import org.apache.commons.io.IOUtils;
+import org.pentaho.platform.api.engine.IPlatformPlugin;
 import org.pentaho.platform.api.engine.IPlatformReadyListener;
 import org.pentaho.platform.api.engine.IPluginLifecycleListener;
 import org.pentaho.platform.api.engine.IPluginManager;
@@ -60,7 +61,7 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
   private final Logger logger = LoggerFactory.getLogger( getClass() );
   private final UnaryOperator<String> toAppsKey = pluginId -> APP_SHELL_APPS_PREFIX + "/" + pluginId + "/";
   private final BinaryOperator<String> toAppsValue =
-    ( pluginId, baseDir ) -> PENTAHO_API_REPOS_PATH + pluginId + "/" + baseDir + "/";
+    ( pluginId, baseDir ) -> PENTAHO_API_REPOS_PATH + "/" + pluginId + "/" + baseDir + "/";
 
   private ObjectMapper mapper;
   private AppShellConfig appShellConfig;
@@ -99,8 +100,14 @@ public class AppShellConfigHandler implements IPluginLifecycleListener, IPlatfor
       AppShellConfig pluginAppShellConfig =
         mapper.readerForUpdating( appShellConfig ).readValue( processedJsonTxt, AppShellConfig.class );
 
-      appShellConfig.apps.put( toAppsKey.apply( pluginId ),
-        toAppsValue.apply( pluginId, pluginAppShellConfig.baseDir ) );
+      IPlatformPlugin platformPlugin =
+        PentahoSystem.get( IPlatformPlugin.class, null, Collections.singletonMap( PLUGIN_ID, pluginId ) );
+      platformPlugin.getStaticResourceMap().put( "/" + pluginId + "/" + pluginAppShellConfig.baseDir,
+        pluginAppShellConfig.baseDir );
+
+      String key = toAppsKey.apply( pluginId );
+      String value = toAppsValue.apply( pluginId, pluginAppShellConfig.baseDir );
+      appShellConfig.apps.put( key, value );
 
       // Since we are processing and registering the merged AppShell config, this may not be necessary. Or, if we see
       // that this information can be useful then maybe see if we can "keep" it as an object (pluginAppShellConfig).

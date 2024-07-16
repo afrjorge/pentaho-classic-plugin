@@ -4,8 +4,6 @@
   <overlays/>
   <perspective/>
   <external-resources/>
-  <static-paths>
-    <static-path url="/app-shell/webclient" localFolder="webclient"/>
-  </static-paths>
+  <static-paths/>
   <content-types/>
 </plugin>
