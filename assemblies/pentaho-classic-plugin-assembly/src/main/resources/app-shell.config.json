@@ -1,0 +1,15 @@
+{
+  "baseDir": "webclient",
+
+  "apps": {},
+
+  "header": { "actions": [] },
+
+  "menu": [],
+
+  "providers": [],
+
+  "mainPanel": {
+    "views": []
+  }
+}
