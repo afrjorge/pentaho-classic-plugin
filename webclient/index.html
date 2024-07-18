@@ -8,29 +8,10 @@
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap"
       rel="stylesheet"
     />
-    <script>
-      // this is temporary. will be a pentaho endpoint/filter
-      // that provides all plugin info relevant for app-shell
-      fetch("/pentaho/content/app-shell-home/webclient/app-shell.config.json")
-          .then(async (response) => {
-            const data = await response.json();
-            const { menu, mainPanel } = globalThis.__appshell_config__;
-
-            globalThis.__appshell_config__.menu = [
-              ...(menu ?? []),
-              ...(data?.menu ?? [])
-            ];
-
-            globalThis.__appshell_config__.mainPanel.views = [
-              ...(mainPanel.views ?? []),
-              ...(data?.mainPanel?.views ?? [])
-            ];
-          });
-    </script>
+    <script src="./app-shell.update.config.js"></script>
   </head>
   <body>
     <div id="hv-root"></div>
-
     <script type="module" src="/virtual/main.tsx"></script>
   </body>
 </html>

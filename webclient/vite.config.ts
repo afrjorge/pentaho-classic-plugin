@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
         mode,
 
         inlineConfig: true,
+        externalImportMap: true,
         type: "app"
       }, env),
     ],

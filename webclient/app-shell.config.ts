@@ -7,10 +7,6 @@ export default (
   name: "Pentaho App Shell",
   baseUrl: env.VITE_BASE_URL || "/pentaho/content/app-shell/webclient/",
 
-  apps: {
-    "@pentaho-plugin": env.VITE_PENTAHO_CONTENT || "/pentaho/api/repos/",
-  },
-
   header: {
     actions: [
       {
