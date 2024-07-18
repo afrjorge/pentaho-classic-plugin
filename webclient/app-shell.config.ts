@@ -11,7 +11,7 @@ export default (
   mainPanel: {
     maxWidth: "xl",
     views: [{
-      bundle: "@self/pages/Home.js", route: "/home"
+      bundle: "@self/pages/Home.js", route: "/"
     }]
   },
 });

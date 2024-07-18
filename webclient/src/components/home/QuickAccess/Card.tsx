@@ -1,13 +1,25 @@
-import {HvButton, HvCard, HvCardContent, HvTypography, theme} from "@hitachivantara/uikit-react-core";
 import React from "react";
-import {css} from "@emotion/css";
+import { css } from "@emotion/css";
+import {
+  HvActionGeneric,
+  HvButton,
+  HvCard,
+  HvCardContent,
+  HvTypography,
+  theme
+} from "@hitachivantara/uikit-react-core";
+import { IconType } from "@hitachivantara/uikit-react-icons";
 
 const classes = {
-  root: css({}),
+  root: css({
+    height: "100%",
+  }),
+
   content: css({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: theme.spacing(2),
 
     height: "100%",
@@ -31,17 +43,32 @@ const classes = {
   })
 }
 
-// @ts-ignore
-const QuickAccessCard = ({ Icon, label, description, onOpen }) => (
+interface QuickAccessAction extends HvActionGeneric {
+  onAction?: (event: React.SyntheticEvent, action: QuickAccessAction) => void;
+}
+
+interface QuickAccessCardProps {
+  Icon: IconType;
+  label: string;
+  description: string;
+  action: QuickAccessAction
+}
+
+const QuickAccessCard = ({ Icon, label, description, action }: QuickAccessCardProps) => (
   <HvCard className={classes.root}>
     <HvCardContent className={classes.content}>
       <div className={classes.icon}>
         <Icon color="neutral" iconSize="M" />
       </div>
 
-      <HvTypography variant="label">{label}</HvTypography>
-      <HvTypography className={classes.description}>{description}</HvTypography>
-      <HvButton variant="primaryGhost" onClick={onOpen}>Open</HvButton>
+      <div className={classes.description}>
+        <HvTypography variant="label">{label}</HvTypography>
+        <HvTypography>{description}</HvTypography>
+      </div>
+
+      <HvButton variant="primaryGhost" onClick={(event) => action.onAction?.(event, action)}>
+        {action.label}
+      </HvButton>
     </HvCardContent>
   </HvCard>
 );

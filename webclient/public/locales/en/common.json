@@ -10,5 +10,7 @@
     "prpti": "Pentaho Interactive Report",
     "kjb": "Job",
     "ktr": "Transformation"
-  }
+  },
+  "editor": "Edit",
+  "viewer": "View"
 }

@@ -62,15 +62,14 @@ export default () => {
   return (
     <div className={classes.root}>
       <HvGrid container flexDirection="column">
-        <HvGrid container item justifyContent="space-between">
-          <HvGrid item xs={8}>
+        <HvGrid container item flexDirection="column" >
+          <HvGrid item>
             <div className={classes.header}>
               <HvTypography variant="xxsTitle">{t("title")}</HvTypography>
               <HvTypography variant="mTitle">{username}</HvTypography>
             </div>
           </HvGrid>
-          <HvGrid container item xs={4} justifyContent="flex-end">
-            <HvGrid item>
+          <HvGrid item>
               <HvButton
                 variant="secondaryGhost"
                 startIcon={<Tool />}
@@ -85,8 +84,6 @@ export default () => {
               >
                 {`Resize is ${canResize ? "on" : "off"}`}
               </HvButton>
-            </HvGrid>
-            <HvGrid item>
               <HvButton
                 variant="secondaryGhost"
                 startIcon={<Save />}
@@ -101,7 +98,6 @@ export default () => {
               >
                 {`Reset`}
               </HvButton>
-            </HvGrid>
           </HvGrid>
         </HvGrid>
 

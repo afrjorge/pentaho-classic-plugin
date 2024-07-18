@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHvNavigation } from "@hitachivantara/app-shell-navigation";
 import {
@@ -9,13 +9,13 @@ import {
   HvTabsProps,
   HvToggleButton,
   hvDateColumn,
-  hvTextColumn
+  hvTextColumn, HvTypography
 } from "@hitachivantara/uikit-react-core";
 import { Heart, HeartSelected, Preview } from "@hitachivantara/uikit-react-icons";
 import { useFavoriteFiles, useRecentFiles } from "../../../lib/data/useUserSettings";
+import { createSnackbar } from "../../../lib/utils";
 import Table from "../../common/Table";
 import classes from "./styles";
-import {createSnackbar} from "../../../lib/utils";
 
 // recent/favorite files related to current user
 // do we want to get recent files from all users in the platform?
@@ -33,6 +33,7 @@ const getColumns = (t, onAction) => [
     accessor: "name",
     style: { minWidth: 100 },
   }),
+
   hvTextColumn({
     Header: "Type", // file type
     accessor: "type",
@@ -40,11 +41,14 @@ const getColumns = (t, onAction) => [
     // @ts-ignore
     Cell: (row) => t(`type.${row.value}`),
   }),
+
   hvDateColumn(
     { Header: "Last Modified", accessor: "update", style: { minWidth: 100 } },
     "DD/MM/YYYY HH:mm",
   ),
+
   hvTextColumn({ Header: "Owner", accessor: "owner" }),
+
   {
     id: "favorite",
     // @ts-ignore
@@ -62,14 +66,19 @@ const getColumns = (t, onAction) => [
       />
     ),
   },
+
   hvTextColumn({ Header: "Who can access", accessor: "access" }),
+
   {
     id: "actions",
     variant: "actions",
-    style: { minWidth: 80 },
+    style: { minWidth: 120 },
     Cell: ({ row }: { row: any }) => (
       <HvActionsGeneric
-        actions={[{ id: "open", label: "Open", disabled: row.original.type === "xaction" }]}
+        actions={[
+          { id: "open", label: "Open", /*disabled: row.original.type === "xaction"*/ },
+          { id: "edit", label: "Edit", /*disabled: row.original.type === "xaction"*/ },
+        ]}
         maxVisibleActions={1}
         // @ts-ignore
         onAction={(evt, action) => onAction?.(evt, action, row)}
@@ -85,12 +94,10 @@ const RecentActivity = ({ title }) => {
 
   // @ts-ignore
   const onAction = (_, action, row) => {
-    if (action.id !== "open") {
-      return;
-    }
-
     const { type, path } = row.original;
-    navigate({ viewBundle: "/pages/Open" }, { state: { type, path, mode: "viewer" } });
+    const mode = action.id === "open" ? "viewer": "editor"
+
+    navigate({ viewBundle: "/pages/Open" }, { state: { type, path, mode } });
   }
 
   const columns = useMemo(() => getColumns(t, onAction), []);
@@ -114,7 +121,12 @@ const RecentActivity = ({ title }) => {
   );
 
   return (
-    <HvSection key="recent-activity" title={title} className={classes.root} classes={{ content: classes.content }}>
+    <HvSection
+      key="recent-activity"
+      title={<HvTypography variant="title4">{title}</HvTypography>}
+      className={classes.root}
+      classes={{ content: classes.content }}
+    >
       <HvTabs className={classes.tabs} value={tab} onChange={handleTabChange}>
         <HvTab icon={<Preview />} iconPosition="start" label="Recent" />
         <HvTab icon={<Heart />} iconPosition="start"  label="Favourites" />

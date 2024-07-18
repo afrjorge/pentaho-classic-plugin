@@ -6,8 +6,8 @@ import {
 } from "@hitachivantara/uikit-react-core";
 import { DataSource, Search, SystemActivity } from "@hitachivantara/uikit-react-icons";
 import { createSnackbar } from "../../../lib/utils";
-import classes from "./styles";
 import Card from "./Card";
+import classes from "./styles";
 
 // @ts-ignore
 const QuickAccess = ({ title }) => {
@@ -28,7 +28,11 @@ const QuickAccess = ({ title }) => {
             Icon={DataSource}
             label="Data Sources"
             description="Perform on-the-fly transformations to your data."
-            onOpen={() => createSnackbar("Open Data Sources", "default")}
+            action={{
+              id: "quick-access-data-sources",
+              label: "Open",
+              onAction: () => createSnackbar("Open Data Sources", "default")
+            }}
           />
         </HvGrid>
 
@@ -37,7 +41,11 @@ const QuickAccess = ({ title }) => {
             Icon={Search}
             label="Schedules"
             description="View and manage your scheduled items."
-            onOpen={() => createSnackbar("Open Schedules", "default")}
+            action={{
+              id: "quick-access-schedules",
+              label: "Open",
+              onAction: () => createSnackbar("Open Schedules", "default")
+            }}
           />
         </HvGrid>
 
@@ -46,7 +54,11 @@ const QuickAccess = ({ title }) => {
             Icon={SystemActivity}
             label="Activity"
             description="Monitor Activity in your environment."
-            onOpen={() => createSnackbar("Open Activity", "default")}
+            action={{
+              id: "quick-access-activity",
+              label: "Open",
+              onAction: () => createSnackbar("Open Activity", "default")
+            }}
           />
         </HvGrid>
       </HvGrid>

@@ -139,7 +139,13 @@ export const useHomeDashboard = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      const dash = data != null ? JSON.parse(data) : undefined;
+      let dash;
+
+      try {
+        dash = JSON.parse(data);
+      } catch (error) {
+        // noop
+      }
 
       setDashboard(dash ?? defaultDashboard);
     }
