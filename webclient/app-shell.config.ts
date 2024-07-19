@@ -5,7 +5,7 @@ export default (
   env: Record<string, string>
 ): HvAppShellConfig => ({
   name: "Pentaho App Shell",
-  baseUrl: env.VITE_BASE_URL || "/pentaho/content/app-shell/webclient/",
+  baseUrl: env.VITE_BASE_URL || "/pentaho/app-shell/",
 
   header: {
     actions: [
@@ -23,6 +23,10 @@ export default (
 
   mainPanel: {
     maxWidth: "xl"
+  },
+
+  theming: {
+    themes: ["pentahoPlus"]
   },
 
   navigationMode: "ONLY_LEFT"

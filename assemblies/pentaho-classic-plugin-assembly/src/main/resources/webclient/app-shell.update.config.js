@@ -15,10 +15,10 @@ const getPluginsConfig = () => {
     }
   }
 
-  return [];
+  return {};
 }
 
-const configs = getPluginsConfig();
+const config = getPluginsConfig();
 
 const appShellConfig = globalThis.__appshell_config__;
 const {
@@ -34,26 +34,24 @@ const {
   providers = [],
 } = appShellConfig;
 
-configs.forEach(config => {
-  if (config.header?.actions?.length > 0) {
-    const { actions = [] } = header;
+if (config.header?.actions?.length > 0) {
+  const { actions = [] } = header;
 
-    header.actions = [...actions, ...config.header.actions];
-    appShellConfig.header = header;
-  }
+  header.actions = [...actions, ...config.header.actions];
+  appShellConfig.header = header;
+}
 
-  if (config.menu?.length > 0) {
-    appShellConfig.menu = [...menu, ...config.menu];
-  }
+if (config.menu?.length > 0) {
+  appShellConfig.menu = [...menu, ...config.menu];
+}
 
-  if (config.providers?.length > 0) {
-    appShellConfig.providers = [...providers, ...config.providers];
-  }
+if (config.providers?.length > 0) {
+  appShellConfig.providers = [...providers, ...config.providers];
+}
 
-  if (config.mainPanel?.views?.length > 0) {
-    const { views = [] } = mainPanel;
+if (config.mainPanel?.views?.length > 0) {
+  const { views = [] } = mainPanel;
 
-    mainPanel.views = [...views, ...config.mainPanel.views];
-    appShellConfig.mainPanel = mainPanel;
-  }
-});
+  mainPanel.views = [...views, ...config.mainPanel.views];
+  appShellConfig.mainPanel = mainPanel;
+}

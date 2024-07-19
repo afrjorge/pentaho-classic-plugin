@@ -10,18 +10,15 @@ const getPluginsImportMap = () => {
 
   if (request.status === 200) {
     try {
-      const importMaps = JSON.parse(request.responseText);
+      const importMap = JSON.parse(request.responseText);
 
-      importMaps.forEach(importMap => {
-        Object.entries(importMap ?? {}).forEach(([key, value]) => {
-          result[`${key}`] = value;
-        })
+      Object.entries(importMap ?? {}).forEach(([key, value]) => {
+        result[`${key}`] = value;
       });
+
     } catch (error) {
       console.error("error parsing the plugins importmap entries", error);
     }
-
-
   }
 
   return result;
@@ -38,9 +35,6 @@ const BASE_MAP = {
   "@hitachivantara/app-shell-shared": "./bundles/app-shell-shared.esm.js",
   "@hitachivantara/uikit-react-shared": "./bundles/uikit-react-shared.esm.js",
   "@hv/uikit-icons/": "./icons/",
-
-  // @self
-  "@pentaho-apps/pentaho-app-shell/": "/pentaho/app-shell/"
 };
 
 const im = document.createElement("script");
