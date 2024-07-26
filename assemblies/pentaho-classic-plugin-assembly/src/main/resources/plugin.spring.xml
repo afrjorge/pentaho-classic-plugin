@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd"
-       default-lazy-init="true">
-
-  <!-- ========================================= -->
-  <!--    BASE PLUGIN.SPRING.XML DECLARATIONS    -->
-  <!-- ========================================= -->
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 
   <context:annotation-config/>
-  <!-- ( mandatory ) JAX-RS beans entry point -->
-  <!-- REST endpoints' base URI is <webapp>/plugin/<plugin-id>/api/ -->
-  <bean id="api" class="org.pentaho.platform.web.servlet.JAXRSPluginServlet"/>
 
-  <bean class="com.pentaho.appshell.apis.AppShellEndpoints"/>
+  <bean id="app-shell" class="com.pentaho.appshell.content.AppShellContentGenerator" scope="prototype"/>
 </beans>

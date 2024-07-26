@@ -5,7 +5,8 @@ export default (
   env: Record<string, string>
 ): HvAppShellConfig => ({
   name: "Pentaho App Shell",
-  baseUrl: env.VITE_BASE_URL || "/pentaho/app-shell/",
+
+  baseUrl: env.VITE_BASE_URL || "/pentaho/api/repos/app-shell/webclient/",
 
   header: {
     actions: [

@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonMerge;
 import java.util.List;
 
 //@JsonIgnoreProperties( ignoreUnknown = true )
-public class MainPanel {
-  public String maxWidth;
-  @JsonMerge
-  public List<Views> views;
+public class Theming {
+  public String[] themes;
+  public String theme;
+  public String colorMode;
 }
